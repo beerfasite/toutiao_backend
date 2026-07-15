@@ -7,6 +7,13 @@ from routers import news
 app = FastAPI()
 
 
+#允许的来源
+origins = [
+    "http://localhost",
+    "http://localhost:8080",
+    "http://localhost:3000"
+]
+
 #允许的源，前端源，开发阶段允许所有源
 app.add_middleware(
     CORSMiddleware,

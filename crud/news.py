@@ -1,5 +1,5 @@
+from sqlalchemy import select, func, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, update, true
 from models.news import Category, News
 
 
@@ -50,3 +50,35 @@ async def increase_news_views(
 
     #更新 -> 检查数据库是否真的命中了数据 -> 命中了返回true否则false，浏览量不一定+1
     return result.rowcount > 0 #rowcount检查这一行
+
+
+
+async def get_related_news(
+        db: AsyncSession,
+        news_id: int,
+        category_id: int,
+        limit: int = 5
+):
+    #推荐相关新闻
+    #按照浏览量，发布时间排序
+    stmt = select(News).where(
+        News.id != news_id,
+        News.category_id == category_id
+    ).order_by(
+        News.views.desc(),
+        News.publish_time.desc()
+    ).limit(limit)
+    result = await db.execute(stmt)
+    # return result.scalars().all()
+    related_news = result.scalars().all()
+    #使用列表推导式
+    return [{
+        "id": news_detail.id,
+        "title": news_detail.title,
+        "content": news_detail.content,
+        "image": news_detail.image,
+        "author": news_detail.author,
+        "publishTime": news_detail.publish_time,
+        "categoryId": news_detail.category_id,
+        "views": news_detail.views
+    } for news_detail in related_news]
