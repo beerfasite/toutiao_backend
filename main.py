@@ -1,10 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import news,users
-
+from utils.exception_handlers import register_exception_handlers
 
 # 创建 FastAPI 实例
 app = FastAPI()
+
+
+#注册异常处理器
+register_exception_handlers(app)
 
 
 #允许的来源
